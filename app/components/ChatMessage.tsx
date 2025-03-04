@@ -24,14 +24,14 @@ const ChatMessage: React.FC<ChatMessageProps> = ({
       <div className="flex-shrink-0">
         {profilePictureUrl && !imageError ? (
           <div className="relative h-8 w-8 rounded-full overflow-hidden">
-            {/* <Image
+            <Image
               src={profilePictureUrl}
               alt={`${nickname}'s avatar`}
               fill
               sizes="32px"
               className="object-cover"
               onError={() => setImageError(true)}
-            /> */}
+            />
           </div>
         ) : (
           <div className="h-8 w-8 rounded-full bg-gray-600 flex items-center justify-center">
