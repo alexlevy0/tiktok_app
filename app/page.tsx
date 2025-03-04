@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import TikTokConnectForm from './components/TikTokConnectForm';
 import ChatList from './components/ChatList';
+import FlagHistogram from './components/FlagHistogram';
+import FlagTester from './components/FlagTester';
+import { updateFlagCounts } from './utils/flagUtils';
 
 interface ChatMessage {
   id: string;
@@ -13,121 +16,129 @@ interface ChatMessage {
   timestamp: number;
 }
 
-// URL de base de l'API
-const API_BASE_URL = 'http://localhost:3001/api/tiktok';
+type ServerStatus = 'loading' | 'online' | 'offline';
 
 export default function Home() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
+  const [username, setUsername] = useState<string>('');
+  const [isConnected, setIsConnected] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [lastError, setLastError] = useState<string | undefined>(undefined);
-  const [serverStatus, setServerStatus] = useState<'checking' | 'online' | 'offline'>('checking');
+  const [serverStatus, setServerStatus] = useState<ServerStatus>('loading');
+  const [lastError, setLastError] = useState<string>('');
+  const [flagCounts, setFlagCounts] = useState<Record<string, number>>({});
 
-  // Vérifier si le serveur est en ligne
-  useEffect(() => {
-    const checkServerStatus = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL.split('/api/tiktok')[0]}/`, { 
-          method: 'GET',
-          headers: { 'Cache-Control': 'no-cache' } 
-        });
-        setServerStatus(response.ok ? 'online' : 'offline');
-      } catch {
+  // Vérifier si le serveur Express est disponible
+  const checkServerStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:3001/status', { 
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      });
+      
+      if (response.ok) {
+        setServerStatus('online');
+      } else {
         setServerStatus('offline');
       }
-    };
-
+    } catch (error) {
+      console.error('Erreur lors de la vérification du serveur:', error);
+      setServerStatus('offline');
+    }
+  };
+  
+  // Vérifier le statut du serveur au chargement
+  useEffect(() => {
     checkServerStatus();
-    const interval = setInterval(checkServerStatus, 10000); // Vérifier toutes les 10 secondes
-    
-    return () => clearInterval(interval);
   }, []);
 
-  // Fonction pour se connecter à un live TikTok
+  // Se connecter à un live TikTok
   const handleConnect = async (inputUsername: string) => {
-    if (serverStatus === 'offline') {
-      setError('Le serveur Express n\'est pas accessible. Veuillez lancer le serveur avec "npm run server".');
-      return;
-    }
-
+    if (!inputUsername.trim()) return;
+    
     setIsLoading(true);
-    setError(null);
+    setLastError('');
     
     try {
-      const response = await fetch(`${API_BASE_URL}/connect`, {
+      const response = await fetch('http://localhost:3001/connect', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username: inputUsername }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: inputUsername })
       });
       
       const data = await response.json();
       
-      if (data.success) {
+      if (response.ok) {
+        setUsername(inputUsername);
         setIsConnected(true);
-        setUsername(data.username);
+        setFlagCounts({}); // Réinitialiser les compteurs de drapeaux
+        console.log(`Connecté au live de ${inputUsername}`);
       } else {
-        setError(data.message || 'Erreur lors de la connexion');
-        setIsConnected(false);
+        setLastError(data.error || 'Erreur lors de la connexion au live');
+        console.error('Erreur:', data.error);
       }
-    } catch {
-      setError('Erreur de connexion au serveur. Assurez-vous que le serveur est en cours d\'exécution avec "npm run server".');
-      setIsConnected(false);
+    } catch (err) {
+      setLastError('Erreur serveur. Assurez-vous que le serveur Express est en cours d\'exécution.');
+      console.error('Erreur lors de la connexion:', err);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Fonction pour se déconnecter d'un live TikTok
+  
+  // Se déconnecter d'un live TikTok
   const handleDisconnect = async () => {
     if (!username) return;
     
-    setIsLoading(true);
-    
     try {
-      await fetch(`${API_BASE_URL}/disconnect`, {
+      await fetch('http://localhost:3001/disconnect', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username })
       });
       
       setIsConnected(false);
-      setUsername(null);
       setMessages([]);
+      console.log(`Déconnecté du live de ${username}`);
     } catch (err) {
       console.error('Erreur lors de la déconnexion:', err);
-    } finally {
-      setIsLoading(false);
     }
   };
-
-  // Fonction pour récupérer les messages
+  
+  // Récupérer les messages du serveur
   const fetchMessages = useCallback(async () => {
-    if (!username || !isConnected) return;
+    if (!username) return;
     
     try {
-      const response = await fetch(`${API_BASE_URL}/messages?username=${encodeURIComponent(username)}`);
-      const data = await response.json();
+      const response = await fetch(`http://localhost:3001/messages?username=${username}`);
       
-      if (data.success) {
-        setIsConnected(data.isConnected);
-        setMessages(data.messages);
-        setLastError(data.lastError);
+      if (response.ok) {
+        const data = await response.json();
         
-        // Si le statut de connexion a changé à déconnecté
-        if (!data.isConnected && isConnected) {
-          setError(data.lastError || 'Déconnecté du live TikTok');
+        if (data.messages && Array.isArray(data.messages)) {
+          setMessages(prevMessages => {
+            // Filtre pour n'ajouter que les nouveaux messages
+            const newMessages = data.messages.filter(
+              (newMsg: ChatMessage) => !prevMessages.some(existingMsg => existingMsg.id === newMsg.id)
+            );
+            
+            // Mettre à jour les compteurs de drapeaux avec les nouveaux messages
+            let updatedFlagCounts = { ...flagCounts };
+            newMessages.forEach((msg: ChatMessage) => {
+              updatedFlagCounts = updateFlagCounts(updatedFlagCounts, msg.comment);
+            });
+            
+            if (newMessages.length > 0) {
+              setFlagCounts(updatedFlagCounts);
+            }
+            
+            // Combiner les anciens et nouveaux messages, et limiter à 100 messages
+            return [...prevMessages, ...newMessages].slice(-100);
+          });
         }
       }
     } catch (err) {
       console.error('Erreur lors de la récupération des messages:', err);
     }
-  }, [username, isConnected]);
+  }, [username, isConnected, flagCounts]);
 
   // Récupérer les messages toutes les secondes
   useEffect(() => {
@@ -139,6 +150,18 @@ export default function Home() {
     
     return () => clearInterval(interval);
   }, [isConnected, username, fetchMessages]);
+
+  // Effet de débogage pour surveiller flagCounts
+  useEffect(() => {
+    if (Object.keys(flagCounts).length > 0) {
+      console.log("État actuel de flagCounts:", flagCounts);
+    }
+  }, [flagCounts]);
+
+  // Gestionnaire pour le rafraîchissement des messages après l'envoi d'un message de test
+  const handleTestMessageSent = () => {
+    fetchMessages();
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-gray-950">
@@ -163,27 +186,30 @@ export default function Home() {
           </div>
         )}
         
-        {error && (
-          <div className="bg-red-800 text-white p-3 rounded-lg mb-4">
-            {error}
-          </div>
-        )}
-        
-        <TikTokConnectForm
+        <TikTokConnectForm 
           onConnect={handleConnect}
           onDisconnect={handleDisconnect}
           isConnected={isConnected}
           isLoading={isLoading}
-          currentUsername={username || undefined}
+          currentUsername={username}
         />
         
-        <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
-          <ChatList 
-            messages={messages} 
-            isConnected={isConnected}
-            lastError={lastError}
-          />
-        </div>
+        {isConnected && (
+          <>
+            <FlagTester 
+              username={username}
+              isConnected={isConnected}
+              onTestSent={handleTestMessageSent}
+            />
+            <FlagHistogram flagCounts={flagCounts} />
+          </>
+        )}
+        
+        <ChatList 
+          messages={messages}
+          isConnected={isConnected}
+          lastError={lastError}
+        />
       </div>
     </main>
   );
