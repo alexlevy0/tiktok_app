@@ -1,101 +1,190 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useEffect, useCallback } from 'react';
+import TikTokConnectForm from './components/TikTokConnectForm';
+import ChatList from './components/ChatList';
+
+interface ChatMessage {
+  id: string;
+  uniqueId: string;
+  nickname: string;
+  comment: string;
+  profilePictureUrl: string;
+  timestamp: number;
+}
+
+// URL de base de l'API
+const API_BASE_URL = 'http://localhost:3001/api/tiktok';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [isConnected, setIsConnected] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [lastError, setLastError] = useState<string | undefined>(undefined);
+  const [serverStatus, setServerStatus] = useState<'checking' | 'online' | 'offline'>('checking');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Vérifier si le serveur est en ligne
+  useEffect(() => {
+    const checkServerStatus = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL.split('/api/tiktok')[0]}/`, { 
+          method: 'GET',
+          headers: { 'Cache-Control': 'no-cache' } 
+        });
+        setServerStatus(response.ok ? 'online' : 'offline');
+      } catch {
+        setServerStatus('offline');
+      }
+    };
+
+    checkServerStatus();
+    const interval = setInterval(checkServerStatus, 10000); // Vérifier toutes les 10 secondes
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fonction pour se connecter à un live TikTok
+  const handleConnect = async (inputUsername: string) => {
+    if (serverStatus === 'offline') {
+      setError('Le serveur Express n\'est pas accessible. Veuillez lancer le serveur avec "npm run server".');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/connect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username: inputUsername }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsConnected(true);
+        setUsername(data.username);
+      } else {
+        setError(data.message || 'Erreur lors de la connexion');
+        setIsConnected(false);
+      }
+    } catch {
+      setError('Erreur de connexion au serveur. Assurez-vous que le serveur est en cours d\'exécution avec "npm run server".');
+      setIsConnected(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour se déconnecter d'un live TikTok
+  const handleDisconnect = async () => {
+    if (!username) return;
+    
+    setIsLoading(true);
+    
+    try {
+      await fetch(`${API_BASE_URL}/disconnect`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username }),
+      });
+      
+      setIsConnected(false);
+      setUsername(null);
+      setMessages([]);
+    } catch (err) {
+      console.error('Erreur lors de la déconnexion:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fonction pour récupérer les messages
+  const fetchMessages = useCallback(async () => {
+    if (!username || !isConnected) return;
+    
+    try {
+      const response = await fetch(`${API_BASE_URL}/messages?username=${encodeURIComponent(username)}`);
+      const data = await response.json();
+      
+      if (data.success) {
+        setIsConnected(data.isConnected);
+        setMessages(data.messages);
+        setLastError(data.lastError);
+        
+        // Si le statut de connexion a changé à déconnecté
+        if (!data.isConnected && isConnected) {
+          setError(data.lastError || 'Déconnecté du live TikTok');
+        }
+      }
+    } catch (err) {
+      console.error('Erreur lors de la récupération des messages:', err);
+    }
+  }, [username, isConnected]);
+
+  // Récupérer les messages toutes les secondes
+  useEffect(() => {
+    if (!isConnected || !username) return;
+    
+    fetchMessages();
+    
+    const interval = setInterval(fetchMessages, 1000);
+    
+    return () => clearInterval(interval);
+  }, [isConnected, username, fetchMessages]);
+
+  return (
+    <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-gray-950">
+      <div className="max-w-4xl w-full">
+        <h1 className="text-3xl font-bold text-white mb-8 text-center">TikTok Live Chat Viewer</h1>
+        
+        {serverStatus === 'offline' && (
+          <div className="bg-yellow-800 text-white p-3 rounded-lg mb-4">
+            <p>⚠️ Le serveur Express n&apos;est pas accessible. Veuillez suivre ces étapes :</p>
+            <ol className="list-decimal ml-5 mt-2">
+              <li>Ouvrez un terminal</li>
+              <li>Exécutez <code className="bg-yellow-900 px-1 rounded">npm run server</code></li>
+              <li>Attendez que le serveur démarre sur le port 3001</li>
+              <li>Rafraîchissez cette page</li>
+            </ol>
+          </div>
+        )}
+
+        {serverStatus === 'online' && (
+          <div className="bg-green-800 text-white p-3 rounded-lg mb-4">
+            <p>✅ Serveur Express connecté. Vous pouvez maintenant vous connecter aux chats TikTok en direct.</p>
+          </div>
+        )}
+        
+        {error && (
+          <div className="bg-red-800 text-white p-3 rounded-lg mb-4">
+            {error}
+          </div>
+        )}
+        
+        <TikTokConnectForm
+          onConnect={handleConnect}
+          onDisconnect={handleDisconnect}
+          isConnected={isConnected}
+          isLoading={isLoading}
+          currentUsername={username || undefined}
+        />
+        
+        <div className="bg-gray-800 rounded-lg overflow-hidden shadow-lg">
+          <ChatList 
+            messages={messages} 
+            isConnected={isConnected}
+            lastError={lastError}
+          />
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+      </div>
+    </main>
   );
 }

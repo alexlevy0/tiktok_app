@@ -1,36 +1,74 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TikTok Live Chat Viewer
 
-## Getting Started
+Une application simple pour visualiser le chat en direct des streams TikTok.
 
-First, run the development server:
+## Fonctionnalités
+
+- Connectez-vous à n'importe quel live TikTok en entrant le nom d'utilisateur
+- Voir les messages de chat en temps réel
+- Interface utilisateur moderne et réactive
+
+## Technologie utilisée
+
+- Next.js pour le frontend
+- Express pour le backend API
+- TikTok-Live-Connector (zerodytrash) pour la connexion aux streams TikTok
+- Tailwind CSS pour les styles
+
+## Architecture
+
+L'application est divisée en deux parties :
+1. Un serveur Express qui gère les connexions TikTok et stocke les messages
+2. Une application Next.js qui affiche l'interface utilisateur et communique avec le serveur
+
+Cette architecture résout les problèmes de compatibilité entre TikTok-Live-Connector et les React Server Components de Next.js.
+
+## Installation
+
+1. Installer les dépendances:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Démarrage
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Pour lancer l'application complète (frontend + backend), utilisez:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run dev:with-server
+```
 
-## Learn More
+Ou vous pouvez démarrer chaque composant séparément:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# Pour le backend Express (port 3001)
+npm run server
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+# Pour le frontend Next.js (port 3000)
+npm run dev
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. Ouvrir [http://localhost:3000](http://localhost:3000) dans votre navigateur.
 
-## Deploy on Vercel
+## Comment utiliser
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+1. Assurez-vous que les deux serveurs (Express et Next.js) sont en cours d'exécution
+2. Entrez le nom d'utilisateur d'un compte TikTok actuellement en live (sans le '@')
+3. Cliquez sur "Se connecter"
+4. Les messages du chat s'afficheront en temps réel
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Pour vous déconnecter, cliquez simplement sur le bouton "Se déconnecter".
+
+## Note technique
+
+Cette application utilise le polling API au lieu des WebSockets pour récupérer les messages. Le frontend interroge le backend Express toutes les secondes pour obtenir les nouveaux messages.
+
+## Dépannage
+
+- **Erreur de connexion au serveur**: Assurez-vous que le serveur Express est en cours d'exécution avec `npm run server`
+- **Erreur lors de la connexion au live TikTok**: Vérifiez que le nom d'utilisateur est correct et que l'utilisateur est actuellement en live
+
+## Crédits
+
+Cette application utilise [TikTok-Live-Connector](https://github.com/zerodytrash/TikTok-Live-Connector) par zerodytrash pour se connecter à l'API TikTok Live.
