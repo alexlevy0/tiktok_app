@@ -1,42 +1,9 @@
 import React from 'react';
+import { getCountryName } from '../utils/countryData';
 
 interface FlagHistogramProps {
   flagCounts: Record<string, number>;
 }
-
-// Mapping des drapeaux vers les noms de pays
-const FLAG_TO_COUNTRY: Record<string, string> = {
-  '🇫🇷': 'France',
-  '🇺🇸': 'États-Unis',
-  '🇬🇧': 'Royaume-Uni',
-  '🇩🇪': 'Allemagne',
-  '🇮🇹': 'Italie',
-  '🇪🇸': 'Espagne',
-  '🇨🇦': 'Canada',
-  '🇧🇷': 'Brésil',
-  '🇯🇵': 'Japon',
-  '🇷🇺': 'Russie',
-  '🇨🇳': 'Chine',
-  '🇮🇳': 'Inde',
-  '🇲🇽': 'Mexique',
-  '🇦🇺': 'Australie',
-  '🇰🇷': 'Corée du Sud',
-  '🇳🇱': 'Pays-Bas',
-  '🇧🇪': 'Belgique',
-  '🇸🇪': 'Suède',
-  '🇨🇭': 'Suisse',
-  '🇦🇷': 'Argentine',
-  '🇲🇦': 'Maroc',
-  '🇹🇳': 'Tunisie',
-  '🇩🇿': 'Algérie',
-  '🇵🇹': 'Portugal',
-  '🇵🇱': 'Pologne',
-  '🇹🇷': 'Turquie',
-  '🇮🇩': 'Indonésie',
-  '🇹🇭': 'Thaïlande',
-  '🇻🇳': 'Vietnam',
-  '🇸🇬': 'Singapour',
-};
 
 const FlagHistogram: React.FC<FlagHistogramProps> = ({ flagCounts }) => {
   // Trier les drapeaux par nombre d'occurrences (du plus au moins fréquent)
@@ -86,7 +53,7 @@ const FlagHistogram: React.FC<FlagHistogramProps> = ({ flagCounts }) => {
           // Calculer le pourcentage
           const percentage = Math.round((count / totalFlags) * 100);
           // Obtenir le nom du pays
-          const countryName = FLAG_TO_COUNTRY[flag] || 'Pays inconnu';
+          const countryName = getCountryName(flag);
           
           return (
             <div key={flag} className="flex flex-col">
