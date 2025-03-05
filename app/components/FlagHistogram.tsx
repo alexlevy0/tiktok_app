@@ -4,6 +4,40 @@ interface FlagHistogramProps {
   flagCounts: Record<string, number>;
 }
 
+// Mapping des drapeaux vers les noms de pays
+const FLAG_TO_COUNTRY: Record<string, string> = {
+  '🇫🇷': 'France',
+  '🇺🇸': 'États-Unis',
+  '🇬🇧': 'Royaume-Uni',
+  '🇩🇪': 'Allemagne',
+  '🇮🇹': 'Italie',
+  '🇪🇸': 'Espagne',
+  '🇨🇦': 'Canada',
+  '🇧🇷': 'Brésil',
+  '🇯🇵': 'Japon',
+  '🇷🇺': 'Russie',
+  '🇨🇳': 'Chine',
+  '🇮🇳': 'Inde',
+  '🇲🇽': 'Mexique',
+  '🇦🇺': 'Australie',
+  '🇰🇷': 'Corée du Sud',
+  '🇳🇱': 'Pays-Bas',
+  '🇧🇪': 'Belgique',
+  '🇸🇪': 'Suède',
+  '🇨🇭': 'Suisse',
+  '🇦🇷': 'Argentine',
+  '🇲🇦': 'Maroc',
+  '🇹🇳': 'Tunisie',
+  '🇩🇿': 'Algérie',
+  '🇵🇹': 'Portugal',
+  '🇵🇱': 'Pologne',
+  '🇹🇷': 'Turquie',
+  '🇮🇩': 'Indonésie',
+  '🇹🇭': 'Thaïlande',
+  '🇻🇳': 'Vietnam',
+  '🇸🇬': 'Singapour',
+};
+
 const FlagHistogram: React.FC<FlagHistogramProps> = ({ flagCounts }) => {
   // Trier les drapeaux par nombre d'occurrences (du plus au moins fréquent)
   const sortedFlags = Object.entries(flagCounts)
@@ -28,25 +62,71 @@ const FlagHistogram: React.FC<FlagHistogramProps> = ({ flagCounts }) => {
 
   // Trouver la valeur maximale pour dimensionner l'histogramme
   const maxCount = Math.max(...Object.values(flagCounts));
+  // Calculer le total des drapeaux pour les pourcentages
+  const totalFlags = Object.values(flagCounts).reduce((sum, count) => sum + count, 0);
+  
+  // Constantes pour le dimensionnement des drapeaux
+  const MIN_FONT_SIZE = 1.2; // en rem
+  const MAX_FONT_SIZE = 2.8; // en rem
 
   return (
-    <div className="bg-gray-800 p-3 rounded-lg mb-4">
-      <h3 className="text-white text-sm mb-2">Statistiques des drapeaux</h3>
-      <div className="space-y-2">
-        {sortedFlags.map(([flag, count]) => (
-          <div key={flag} className="flex items-center">
-            <div className="w-8 text-center text-xl">{flag}</div>
-            <div className="flex-1 ml-2">
-              <div className="flex items-center">
+    <div className="bg-gray-800 p-4 rounded-lg mb-4">
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-white text-base font-semibold">Origine des spectateurs</h3>
+        <span className="text-xs text-gray-400 bg-gray-700 px-2 py-1 rounded-full">
+          Total: {totalFlags} drapeaux
+        </span>
+      </div>
+      
+      <div className="space-y-4">
+        {sortedFlags.map(([flag, count]) => {
+          // Calculer la taille relative du drapeau
+          const relativeSize = (count / maxCount);
+          const fontSize = MIN_FONT_SIZE + (MAX_FONT_SIZE - MIN_FONT_SIZE) * relativeSize;
+          // Calculer le pourcentage
+          const percentage = Math.round((count / totalFlags) * 100);
+          // Obtenir le nom du pays
+          const countryName = FLAG_TO_COUNTRY[flag] || 'Pays inconnu';
+          
+          return (
+            <div key={flag} className="flex flex-col">
+              <div className="flex items-center mb-1">
                 <div 
-                  className="bg-pink-500 h-5 rounded-sm" 
-                  style={{ width: `${(count / maxCount) * 100}%` }}
-                ></div>
-                <span className="ml-2 text-white text-xs">{count}</span>
+                  className="flex items-center justify-center"
+                  style={{ 
+                    width: '50px',
+                    minWidth: '50px',
+                  }}
+                >
+                  <span 
+                    style={{ 
+                      fontSize: `${fontSize}rem`,
+                      lineHeight: 1,
+                    }}
+                  >
+                    {flag}
+                  </span>
+                </div>
+                <div className="ml-2">
+                  <span className="text-white text-sm">{countryName}</span>
+                </div>
+              </div>
+              
+              <div className="flex-1 pl-[50px]">
+                <div className="w-full h-7 bg-gray-700 rounded-md overflow-hidden relative">
+                  <div 
+                    className="h-full rounded-sm bg-gradient-to-r from-pink-600 to-purple-600" 
+                    style={{ width: `${(count / maxCount) * 100}%` }}
+                  />
+                  <div className="absolute inset-0 flex items-center px-3 justify-between">
+                    <span className="text-white text-xs font-medium">{count}</span>
+                    <span className="text-white text-xs font-medium">{percentage}%</span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

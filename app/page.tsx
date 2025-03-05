@@ -166,7 +166,7 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-gray-950">
       <div className="max-w-4xl w-full">
-        <h1 className="text-3xl font-bold text-white mb-8 text-center">TikTok Live Chat Viewer</h1>
+        {/* <h1 className="text-3xl font-bold text-white mb-8 text-center">TikTok Live Chat Viewer</h1> */}
         
         {serverStatus === 'offline' && (
           <div className="bg-yellow-800 text-white p-3 rounded-lg mb-4">
