@@ -391,50 +391,98 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
       vote = 'scissors';
     }
     
-    // Détecter les mots en français
+    // Détecter les mots dans différentes langues
     else if (
-      lowerMessage.includes('pierre') || 
+      // English
       lowerMessage.includes('rock') || 
+      // French
+      lowerMessage.includes('pierre') || 
+      // Spanish
       lowerMessage.includes('piedra') || 
+      lowerMessage.includes('roca') ||
+      // Hindi (romanized)
+      lowerMessage.includes('patthar') ||
+      lowerMessage.includes('rock') ||
+      // Arabic (romanized)
+      lowerMessage.includes('hajar') ||
+      lowerMessage.includes('sakhrah') ||
+      // Chinese (romanized)
+      lowerMessage.includes('shi') ||
+      lowerMessage.includes('shitou') ||
+      // German
       lowerMessage.includes('stein') ||
-      lowerMessage.includes('камень') || // russe
-      lowerMessage.includes('pietra') // italien
+      // Russian (romanized)
+      lowerMessage.includes('kamen') ||
+      // Italian
+      lowerMessage.includes('sasso') ||
+      lowerMessage.includes('roccia') ||
+      // Portuguese
+      lowerMessage.includes('pedra') ||
+      // Japanese (romanized)
+      lowerMessage.includes('ishi') ||
+      lowerMessage.includes('iwa') ||
+      lowerMessage === '1' || lowerMessage === 'r' || lowerMessage === 'p'
     ) {
       vote = 'rock';
     }
     
     else if (
-      lowerMessage.includes('papier') || 
-      lowerMessage.includes('paper') || 
-      lowerMessage.includes('papel') || 
+      // English
+      lowerMessage.includes('paper') ||
+      // French
       lowerMessage.includes('papier') ||
-      lowerMessage.includes('бумага') || // russe
-      lowerMessage.includes('carta') // italien
+      // Spanish
+      lowerMessage.includes('papel') ||
+      // Hindi (romanized)
+      lowerMessage.includes('kaagaz') ||
+      // Arabic (romanized)
+      lowerMessage.includes('waraq') ||
+      lowerMessage.includes('waraka') ||
+      // Chinese (romanized)
+      lowerMessage.includes('zhi') ||
+      lowerMessage.includes('zhiliao') ||
+      // German
+      lowerMessage.includes('papier') ||
+      // Russian (romanized)
+      lowerMessage.includes('bumaga') ||
+      // Italian
+      lowerMessage.includes('carta') ||
+      // Portuguese
+      lowerMessage.includes('papel') ||
+      // Japanese (romanized)
+      lowerMessage.includes('kami') ||
+      lowerMessage === '2' || lowerMessage === 'pa' || lowerMessage === 'pp'
     ) {
       vote = 'paper';
     }
     
     else if (
-      lowerMessage.includes('ciseaux') || 
-      lowerMessage.includes('scissors') || 
-      lowerMessage.includes('tijeras') || 
+      // English
+      lowerMessage.includes('scissors') ||
+      // French
+      lowerMessage.includes('ciseaux') ||
+      // Spanish
+      lowerMessage.includes('tijeras') ||
+      // Hindi (romanized)
+      lowerMessage.includes('kainchi') ||
+      // Arabic (romanized)
+      lowerMessage.includes('maqass') ||
+      lowerMessage.includes('miqass') ||
+      // Chinese (romanized)
+      lowerMessage.includes('jianzi') ||
+      lowerMessage.includes('jiandao') ||
+      // German
       lowerMessage.includes('schere') ||
-      lowerMessage.includes('ножницы') || // russe
-      lowerMessage.includes('forbici') // italien
+      // Russian (romanized)
+      lowerMessage.includes('nozhnitsy') ||
+      // Italian
+      lowerMessage.includes('forbici') ||
+      // Portuguese
+      lowerMessage.includes('tesoura') ||
+      // Japanese (romanized)
+      lowerMessage.includes('hasami') ||
+      lowerMessage === '3' || lowerMessage === 's' || lowerMessage === 'c'
     ) {
-      vote = 'scissors';
-    }
-    
-    // Détecter les chiffres ou des raccourcis communs
-    else if (lowerMessage === '1' || lowerMessage === 'p' || lowerMessage === 'r') {
-      vote = 'rock';
-    }
-    
-    else if (lowerMessage === '2' || lowerMessage === 'pa' || lowerMessage === 'pp') {
-      vote = 'paper';
-    }
-    
-    else if (lowerMessage === '3' || lowerMessage === 's' || lowerMessage === 'c') {
       vote = 'scissors';
     }
     
