@@ -32,11 +32,28 @@ class ChatMessage {
   }
 }
 
+// Structure pour stocker les cadeaux
+class Gift {
+  constructor(data) {
+    this.id = `${data.userId || 'test'}-${Date.now()}`;
+    this.userId = data.userId || 'test';
+    this.uniqueId = data.uniqueId || 'test_user';
+    this.nickname = data.nickname || 'Test User';
+    this.giftId = data.giftId || 1;
+    this.repeatCount = data.repeatCount || 1;
+    this.giftName = data.giftName || 'Test Gift';
+    this.diamondCount = data.diamondCount || 1;
+    this.timestamp = Date.now();
+  }
+}
+
 // Structure pour stocker les connexions et les messages par utilisateur
 const userConnections = new Map();
 
 // Maximum de messages à conserver
 const MAX_MESSAGES = 100;
+// Maximum de cadeaux à conserver
+const MAX_GIFTS = 50;
 
 // Route pour vérifier le statut du serveur
 app.get('/status', (req, res) => {
@@ -67,6 +84,7 @@ app.post('/connect', async (req, res) => {
     userConnections.set(username, {
       connection: tiktokConnection,
       messages: [],
+      gifts: [],
       lastError: null,
       isConnected: true
     });
@@ -105,6 +123,43 @@ app.post('/disconnect', (req, res) => {
 
 // Route pour récupérer les messages
 app.get('/messages', (req, res) => {
+  const { username, after_id, min_timestamp } = req.query;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Nom d\'utilisateur manquant' });
+  }
+  
+  // Récupérer les informations de l'utilisateur
+  const userInfo = userConnections.get(username);
+  
+  if (!userInfo) {
+    return res.status(404).json({ error: 'Utilisateur non trouvé' });
+  }
+  
+  // Filtrer les messages si after_id est spécifié
+  let messages = userInfo.messages;
+  
+  if (after_id) {
+    messages = messages.filter(msg => msg.id > after_id);
+  }
+  
+  // Filtrer les messages si min_timestamp est spécifié
+  if (min_timestamp) {
+    const minTime = parseInt(min_timestamp);
+    if (!isNaN(minTime)) {
+      messages = messages.filter(msg => msg.timestamp >= minTime);
+      console.log(`Filtrage des messages après ${new Date(minTime).toISOString()}, ${messages.length} messages après filtre`);
+    }
+  }
+  
+  res.status(200).json({
+    messages: messages,
+    currentViewers: userInfo.viewers
+  });
+});
+
+// Route pour récupérer les cadeaux
+app.get('/gifts', (req, res) => {
   const { username } = req.query;
   
   if (!username) {
@@ -119,9 +174,8 @@ app.get('/messages', (req, res) => {
   }
   
   res.status(200).json({
-    messages: userInfo.messages,
-    isConnected: userInfo.isConnected,
-    lastError: userInfo.lastError
+    gifts: userInfo.gifts || [],
+    isConnected: userInfo.isConnected
   });
 });
 
@@ -161,6 +215,49 @@ app.post('/test-flag', (req, res) => {
   res.status(200).json({ message: 'Message de test ajouté' });
 });
 
+// Route pour tester les cadeaux - Ajouter un cadeau de test
+app.post('/test-gift', (req, res) => {
+  const { username, giftName, diamondCount, nickname } = req.body;
+  
+  if (!username) {
+    return res.status(400).json({ error: 'Nom d\'utilisateur manquant' });
+  }
+  
+  // Récupérer les informations de l'utilisateur
+  const userInfo = userConnections.get(username);
+  
+  if (!userInfo) {
+    return res.status(404).json({ error: 'Utilisateur non trouvé' });
+  }
+  
+  // Initialiser le tableau de cadeaux s'il n'existe pas
+  if (!userInfo.gifts) {
+    userInfo.gifts = [];
+  }
+  
+  // Créer un cadeau de test
+  const testGift = new Gift({
+    userId: 'test-user',
+    uniqueId: 'test-user',
+    nickname: nickname || 'Test User',
+    giftId: Math.floor(Math.random() * 100),
+    repeatCount: 1,
+    giftName: giftName || 'Rose',
+    diamondCount: diamondCount || 1
+  });
+  
+  // Ajouter le cadeau au début de la liste
+  userInfo.gifts.unshift(testGift);
+  
+  // Limiter le nombre de cadeaux
+  if (userInfo.gifts.length > MAX_GIFTS) {
+    userInfo.gifts = userInfo.gifts.slice(0, MAX_GIFTS);
+  }
+  
+  console.log(`Test cadeau ajouté: ${giftName || 'Rose'} (${diamondCount || 1} diamants)`);
+  res.status(200).json({ message: 'Cadeau de test ajouté' });
+});
+
 // Configurer les événements TikTok
 function setupTikTokEvents(connection, username) {
   // Événement de chat
@@ -180,6 +277,30 @@ function setupTikTokEvents(connection, username) {
     }
     
     console.log(`${username} - Nouveau message de ${data.nickname}: ${data.comment}`);
+  });
+  
+  // Événement de cadeau
+  connection.on('gift', data => {
+    const userInfo = userConnections.get(username);
+    if (!userInfo) return;
+    
+    // Initialiser le tableau de cadeaux s'il n'existe pas
+    if (!userInfo.gifts) {
+      userInfo.gifts = [];
+    }
+    
+    // Créer un nouveau cadeau
+    const gift = new Gift(data);
+    
+    // Ajouter le cadeau au début de la liste
+    userInfo.gifts.unshift(gift);
+    
+    // Limiter le nombre de cadeaux
+    if (userInfo.gifts.length > MAX_GIFTS) {
+      userInfo.gifts = userInfo.gifts.slice(0, MAX_GIFTS);
+    }
+    
+    console.log(`${username} - Nouveau cadeau de ${data.nickname}: ${data.giftName} (${data.diamondCount} diamants)`);
   });
   
   // Événement de déconnexion

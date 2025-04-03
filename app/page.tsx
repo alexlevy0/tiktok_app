@@ -5,6 +5,7 @@ import TikTokConnectForm from './components/TikTokConnectForm';
 import ChatList from './components/ChatList';
 import FlagHistogram from './components/FlagHistogram';
 import FlagTester from './components/FlagTester';
+import RPSGame from './components/RPSGame';
 import { updateFlagCounts } from './utils/flagUtils';
 
 interface ChatMessage {
@@ -17,6 +18,7 @@ interface ChatMessage {
 }
 
 type ServerStatus = 'loading' | 'online' | 'offline';
+type ActiveView = 'chat' | 'flags' | 'game';
 
 export default function Home() {
   const [username, setUsername] = useState<string>('');
@@ -26,6 +28,8 @@ export default function Home() {
   const [serverStatus, setServerStatus] = useState<ServerStatus>('loading');
   const [lastError, setLastError] = useState<string>('');
   const [flagCounts, setFlagCounts] = useState<Record<string, number>>({});
+  const [activeView, setActiveView] = useState<ActiveView>('chat');
+  const [showConnectForm, setShowConnectForm] = useState<boolean>(true);
 
   // Vérifier si le serveur Express est disponible
   const checkServerStatus = async () => {
@@ -163,6 +167,45 @@ export default function Home() {
     fetchMessages();
   };
 
+  // Rendre le composant correspondant à la vue active
+  const renderActiveView = () => {
+    switch (activeView) {
+      case 'game':
+        return (
+          <RPSGame 
+            username={username}
+            isConnected={isConnected}
+            onToggleConnectForm={toggleConnectForm}
+          />
+        );
+      case 'flags':
+        return (
+          <>
+            <FlagTester 
+              username={username}
+              isConnected={isConnected}
+              onTestSent={handleTestMessageSent}
+            />
+            <FlagHistogram flagCounts={flagCounts} />
+          </>
+        );
+      case 'chat':
+      default:
+        return (
+          <ChatList 
+            messages={messages}
+            isConnected={isConnected}
+            lastError={lastError}
+          />
+        );
+    }
+  };
+
+  // Fonction pour basculer l'affichage du formulaire de connexion
+  const toggleConnectForm = () => {
+    setShowConnectForm(prev => !prev);
+  };
+
   return (
     <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-gray-950">
       <div className="max-w-4xl w-full">
@@ -180,36 +223,59 @@ export default function Home() {
           </div>
         )}
 
-        {serverStatus === 'online' && (
+        {serverStatus === 'online' && showConnectForm && (
           <div className="bg-green-800 text-white p-3 rounded-lg mb-4">
             <p>✅ Serveur Express connecté. Vous pouvez maintenant vous connecter aux chats TikTok en direct.</p>
           </div>
         )}
         
-        <TikTokConnectForm 
-          onConnect={handleConnect}
-          onDisconnect={handleDisconnect}
-          isConnected={isConnected}
-          isLoading={isLoading}
-          currentUsername={username}
-        />
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={toggleConnectForm}
+            className="bg-gray-700 hover:bg-gray-600 text-white text-sm py-1 px-2 rounded"
+          >
+            {showConnectForm ? "Masquer TikTok Connect" : "Afficher TikTok Connect"}
+          </button>
+        </div>
+        
+        {showConnectForm && (
+          <TikTokConnectForm 
+            onConnect={handleConnect}
+            onDisconnect={handleDisconnect}
+            isConnected={isConnected}
+            isLoading={isLoading}
+            currentUsername={username}
+          />
+        )}
         
         {isConnected && (
           <>
-            <FlagTester 
-              username={username}
-              isConnected={isConnected}
-              onTestSent={handleTestMessageSent}
-            />
-            <FlagHistogram flagCounts={flagCounts} />
+            <div className="mb-4">
+              <div className="bg-gray-800 p-2 rounded-lg flex gap-2">
+                <button 
+                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'chat' ? 'bg-pink-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                  onClick={() => setActiveView('chat')}
+                >
+                  Chat
+                </button>
+                <button 
+                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'flags' ? 'bg-pink-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                  onClick={() => setActiveView('flags')}
+                >
+                  Drapeaux
+                </button>
+                <button 
+                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'game' ? 'bg-pink-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                  onClick={() => setActiveView('game')}
+                >
+                  Jeu PPC
+                </button>
+              </div>
+            </div>
           </>
         )}
         
-        <ChatList 
-          messages={messages}
-          isConnected={isConnected}
-          lastError={lastError}
-        />
+        {renderActiveView()}
       </div>
     </main>
   );
