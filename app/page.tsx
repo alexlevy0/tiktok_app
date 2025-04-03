@@ -20,6 +20,35 @@ interface ChatMessage {
 type ServerStatus = 'loading' | 'online' | 'offline';
 type ActiveView = 'chat' | 'flags' | 'game';
 
+// Composant de particules flottantes
+const FloatingParticles = () => {
+  useEffect(() => {
+    const container = document.querySelector('.floating-particles');
+    if (!container) return;
+
+    const createParticle = () => {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = `${Math.random() * 100}%`;
+      particle.style.animationDuration = `${15 + Math.random() * 10}s`;
+      particle.style.opacity = '0';
+      container.appendChild(particle);
+
+      setTimeout(() => particle.remove(), 20000);
+    };
+
+    const interval = setInterval(() => {
+      if (container.childNodes.length < 50) {
+        createParticle();
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return <div className="floating-particles" />;
+};
+
 export default function Home() {
   const [username, setUsername] = useState<string>('');
   const [isConnected, setIsConnected] = useState<boolean>(false);
@@ -207,16 +236,27 @@ export default function Home() {
   };
 
   return (
-    <main className="flex min-h-screen flex-col items-center p-4 md:p-8 bg-gray-950">
-      <div className="max-w-4xl w-full">
+    <main className="flex min-h-screen flex-col items-center p-4 md:p-8 relative">
+      {/* Effet de fond animé est déjà appliqué via CSS global */}
+      
+      {/* Particules flottantes */}
+      <FloatingParticles />
+      
+      {/* Grille cyber en arrière-plan */}
+      <div className="fixed inset-0 cyber-grid opacity-20" />
+      
+      {/* Effet de scan */}
+      <div className="fixed inset-0 scanline pointer-events-none" />
+      
+      <div className="max-w-4xl w-full relative">
         {/* <h1 className="text-3xl font-bold text-white mb-8 text-center">TikTok Live Chat Viewer</h1> */}
         
         {serverStatus === 'offline' && (
-          <div className="bg-yellow-800 text-white p-3 rounded-lg mb-4">
+          <div className="glass-effect text-white p-3 rounded-lg mb-4 animated-border">
             <p>⚠️ Le serveur Express n&apos;est pas accessible. Veuillez suivre ces étapes :</p>
             <ol className="list-decimal ml-5 mt-2">
               <li>Ouvrez un terminal</li>
-              <li>Exécutez <code className="bg-yellow-900 px-1 rounded">npm run server</code></li>
+              <li>Exécutez <code className="bg-[#0a1b30] px-1 rounded">npm run server</code></li>
               <li>Attendez que le serveur démarre sur le port 3001</li>
               <li>Rafraîchissez cette page</li>
             </ol>
@@ -224,48 +264,50 @@ export default function Home() {
         )}
 
         {serverStatus === 'online' && showConnectForm && (
-          <div className="bg-green-800 text-white p-3 rounded-lg mb-4">
-            <p>✅ Serveur Express connecté. Vous pouvez maintenant vous connecter aux chats TikTok en direct.</p>
+          <div className="glass-effect text-white p-3 rounded-lg mb-4 animated-border">
+            <p className="neon-text">✅ Serveur Express connecté. Vous pouvez maintenant vous connecter aux chats TikTok en direct.</p>
           </div>
         )}
         
         <div className="flex justify-end mb-2">
           <button
             onClick={toggleConnectForm}
-            className="bg-gray-700 hover:bg-gray-600 text-white text-sm py-1 px-2 rounded"
+            className="glass-effect hover:bg-gray-600 text-white text-sm py-1 px-2 rounded animated-border"
           >
             {showConnectForm ? "Masquer TikTok Connect" : "Afficher TikTok Connect"}
           </button>
         </div>
         
         {showConnectForm && (
-          <TikTokConnectForm 
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-            isConnected={isConnected}
-            isLoading={isLoading}
-            currentUsername={username}
-          />
+          <div className="glass-effect animated-border">
+            <TikTokConnectForm 
+              onConnect={handleConnect}
+              onDisconnect={handleDisconnect}
+              isConnected={isConnected}
+              isLoading={isLoading}
+              currentUsername={username}
+            />
+          </div>
         )}
         
         {isConnected && (
           <>
             <div className="mb-4">
-              <div className="bg-gray-800 p-2 rounded-lg flex gap-2">
+              <div className="glass-effect p-2 rounded-lg flex gap-2 animated-border">
                 <button 
-                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'chat' ? 'bg-pink-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'chat' ? 'bg-pink-600 neon-text' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
                   onClick={() => setActiveView('chat')}
                 >
                   Chat
                 </button>
                 <button 
-                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'flags' ? 'bg-pink-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'flags' ? 'bg-pink-600 neon-text' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
                   onClick={() => setActiveView('flags')}
                 >
                   Drapeaux
                 </button>
                 <button 
-                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'game' ? 'bg-pink-600 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
+                  className={`flex-1 py-2 px-4 rounded-md transition-colors ${activeView === 'game' ? 'bg-pink-600 neon-text' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'}`}
                   onClick={() => setActiveView('game')}
                 >
                   Jeu PPC
@@ -275,7 +317,9 @@ export default function Home() {
           </>
         )}
         
-        {renderActiveView()}
+        <div className="glass-effect rounded-lg animated-border">
+          {renderActiveView()}
+        </div>
       </div>
     </main>
   );

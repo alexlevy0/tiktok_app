@@ -654,7 +654,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
   }
   
   return (
-    <div className="flex flex-col h-full bg-[#0a0a20] text-white rounded-lg overflow-hidden border border-[#2a9bb5] shadow-[0_0_15px_rgba(0,255,255,0.3)]">
+    <div className="flex flex-col h-full bg-[#0a0a20] text-white rounded-lg overflow-hidden border border-[#2a9bb5] shadow-[0_0_15px_rgba(0,255,255,0.3)] opacity-85">
       {/* Top section - Title and scores - conditionnelle selon showHeader */}
       {showHeader && (
         <div className="p-4 bg-gradient-to-r from-[#1a103a] to-[#0e2b4a] backdrop-blur-sm backdrop-filter">
@@ -814,8 +814,11 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
         </div>
         
         {/* VS indicator */}
-        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 text-5xl text-purple-400 font-bold opacity-80 animate-pulse">
-          VS
+        <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 perspective-[1000px]">
+          {/* Effet de lueur derrière le VS */}
+          <div className="vs-glow"></div>
+          {/* VS avec effet 3D */}
+          <div className="vs-3d">VS</div>
         </div>
         
         {/* Result message */}
@@ -896,7 +899,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
           )}
         </div>
         <div className="text-gray-500">
-          Phase: {phase} | User: {username}
+          Phase: {phase} | User: {username} | Created by: @alexlevy0
         </div>
       </div>
     </div>

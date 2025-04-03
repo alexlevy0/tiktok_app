@@ -46,21 +46,21 @@ const ChatList: React.FC<ChatListProps> = ({ messages, isConnected, lastError })
   
   return (
     <div className="flex flex-col h-full relative">
-      <div className="bg-gray-900 text-white p-2 rounded-t-lg flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Chat en direct</h2>
+      <div className="bg-[#0a0f20]/90 backdrop-blur-sm text-white p-2 rounded-t-lg flex justify-between items-center animated-border">
+        <h2 className="text-lg font-semibold neon-text">Chat en direct</h2>
         <div className="flex items-center gap-4">
           <div className="flex items-center">
-            <div className={`w-3 h-3 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <div className={`w-3 h-3 rounded-full mr-2 ${isConnected ? 'bg-green-500 animate-pulse' : 'bg-red-500'}`}></div>
             <span className="text-sm">{isConnected ? 'Connecté' : 'Déconnecté'}</span>
           </div>
-          <span className="text-xs px-2 py-1 rounded-full bg-gray-600 text-white">
+          <span className="text-xs px-2 py-1 rounded-full glass-effect">
             {messages.length} message{messages.length !== 1 ? 's' : ''}
           </span>
         </div>
       </div>
       
       {lastError && !isConnected && (
-        <div className="bg-red-900 text-white p-2 text-sm">
+        <div className="bg-red-900/80 backdrop-blur-sm text-white p-2 text-sm animated-border">
           Erreur: {lastError}
         </div>
       )}
@@ -68,7 +68,7 @@ const ChatList: React.FC<ChatListProps> = ({ messages, isConnected, lastError })
       <div className="relative flex-1">
         <div 
           ref={messagesContainerRef}
-          className="overflow-y-auto bg-gray-900 p-3 max-h-[500px] w-full h-full"
+          className="overflow-y-auto bg-[#0a0f20]/80 backdrop-blur-sm p-3 max-h-[500px] w-full h-full cyber-grid"
           onScroll={handleScroll}
         >
           {messages.length === 0 ? (
@@ -80,15 +80,23 @@ const ChatList: React.FC<ChatListProps> = ({ messages, isConnected, lastError })
           ) : (
             <>
               {messages.map((message, index) => (
-                <ChatMessage
+                <div 
                   key={message.id + index}
-                  id={message.id}
-                  uniqueId={message.uniqueId}
-                  nickname={message.nickname}
-                  comment={message.comment}
-                  profilePictureUrl={message.profilePictureUrl}
-                  timestamp={message.timestamp}
-                />
+                  className="animate-reveal"
+                  style={{ 
+                    animationDelay: `${index * 0.1}s`,
+                    animationFillMode: 'backwards'
+                  }}
+                >
+                  <ChatMessage
+                    id={message.id}
+                    uniqueId={message.uniqueId}
+                    nickname={message.nickname}
+                    comment={message.comment}
+                    profilePictureUrl={message.profilePictureUrl}
+                    timestamp={message.timestamp}
+                  />
+                </div>
               ))}
               {/* Élément invisible pour l'autoscroll */}
               <div ref={messagesEndRef} />
@@ -99,7 +107,7 @@ const ChatList: React.FC<ChatListProps> = ({ messages, isConnected, lastError })
         {/* Bouton pour revenir en bas, positionné par-dessus le conteneur de défilement */}
         {!shouldScrollToBottom && messages.length > 0 && (
           <button 
-            className="absolute bottom-4 right-4 bg-pink-600 rounded-full p-2 text-white shadow-lg hover:bg-pink-700 focus:outline-none z-10"
+            className="absolute bottom-4 right-4 glass-effect rounded-full p-2 text-white shadow-lg hover:bg-pink-700 focus:outline-none z-10 animated-border"
             onClick={() => {
               setShouldScrollToBottom(true);
               scrollToBottom();
