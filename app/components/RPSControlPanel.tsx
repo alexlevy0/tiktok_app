@@ -29,7 +29,7 @@ const RPSControlPanel: React.FC<RPSControlPanelProps> = ({
       case 'reveal':
         return {
           title: 'Reveal!',
-          message: 'Discover the bot and chat choices...',
+          message: 'Discover the AI and chat choices...',
           details: ''
         };
       case 'result':

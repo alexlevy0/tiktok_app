@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, useEffect, useCallback } from 'react';
 import RPSVoteTester from './RPSVoteTester';
 import RPSGiftTester from './RPSGiftTester';
@@ -30,8 +31,8 @@ interface RPSGameProps {
 const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnectForm }) => {
   // États du jeu
   const [phase, setPhase] = useState<GamePhase>('voting');
-  const [timeLeft, setTimeLeft] = useState<number>(30); // Durée du vote en secondes
-  const [votingDuration, setVotingDuration] = useState<number>(30); // Durée standard
+  const [timeLeft, setTimeLeft] = useState<number>(7); // Durée du vote en secondes
+  const [votingDuration, setVotingDuration] = useState<number>(7); // Durée standard
   const [botChoice, setBotChoice] = useState<GameChoice>(null);
   const [chatChoice, setChatChoice] = useState<GameChoice>(null);
   const [scores, setScores] = useState({ bot: 0, chat: 0 });
@@ -660,7 +661,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
         <div className="p-4 bg-gradient-to-r from-[#1a103a] to-[#0e2b4a] backdrop-blur-sm backdrop-filter">
           <div className="text-center">
             <h2 className="text-4xl font-bold text-[#36e8e8] tracking-wider mb-6 text-shadow">
-              PPC BOT BATTLE <span className="text-xl">🤖</span>
+              PPC <span className="text-glow-ai shine-effect hover-scale float">AI</span> vs <span className="text-glow-chat shine-effect hover-scale float">CHAT</span> BATTLE <span className="text-xl">🤖</span>
             </h2>
           </div>
           
@@ -669,7 +670,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
             <div className="bg-[#0a1b40]/80 text-white p-4 rounded-lg border border-[#1e3a6a] shadow-[0_0_10px_rgba(0,150,255,0.3)] backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_15px_rgba(0,150,255,0.4)] hover:scale-[1.02]">
               <div className="flex items-center mb-2">
                 <span className="text-xl mr-2">🤖</span>
-                <span className="text-[#36e8e8] text-2xl font-bold">BOT</span>
+                <span className="text-glow-ai shine-effect hover-scale text-2xl">AI</span>
                 <span className="ml-auto text-xl">{scores.bot}</span>
               </div>
               <div className="text-center">
@@ -678,9 +679,8 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
             </div>
             <div className="bg-[#0a2b40]/80 text-white p-4 rounded-lg border border-[#1e5a6a] shadow-[0_0_10px_rgba(0,255,200,0.3)] backdrop-blur-sm transition-all duration-300 hover:shadow-[0_0_15px_rgba(0,255,200,0.4)] hover:scale-[1.02]">
               <div className="flex items-center mb-2">
-                <span className="text-[#36e8e8] text-2xl font-bold">CHAT</span>
+                <span className="text-glow-chat shine-effect hover-scale text-2xl font-bold">CHAT</span>
                 <span className="ml-auto text-xl">{scores.chat}</span>
-                {streak.player === 'chat' && streak.count > 0 && <span className="ml-1">⭐</span>}
               </div>
               <div className="text-center">
                 <span className="text-6xl font-bold text-[#36e8e8]">{scores.chat}</span>
@@ -736,9 +736,9 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
       {!showHeader && (
         <div className="p-2 bg-[#0a0a25]/90 backdrop-blur-sm text-center">
           <div className="flex justify-between items-center">
-            <div className="text-xs text-[#36e8e8]">Bot: {scores.bot}</div>
-            <h3 className="text-sm font-bold text-white">PPC BOT BATTLE</h3>
-            <div className="text-xs text-[#36e8e8]">Chat: {scores.chat}</div>
+            <div className="text-xs"><span className="text-glow-ai shine-effect hover-scale">AI</span>: {scores.bot}</div>
+            <h3 className="text-sm font-bold text-white">PPC AI vs CHAT BATTLE</h3>
+            <div className="text-xs"><span className="text-glow-chat shine-effect hover-scale">CHAT</span>: {scores.chat}</div>
           </div>
         </div>
       )}
@@ -747,7 +747,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
       <div className="flex-1 p-4 relative">
         <div className="grid grid-cols-2 gap-8 h-full">
           <div className={`bg-gradient-to-br from-[#3a0a30]/80 to-[#280a20]/80 backdrop-blur-sm p-6 rounded-lg flex flex-col items-center justify-center transition-all duration-500 ${phase === 'result' ? 'transform hover:scale-105' : ''} ${winner === 'bot' ? 'border-2 border-red-500 shadow-[0_0_15px_rgba(255,0,0,0.5)]' : 'border border-[#502a44]'}`}>
-            <div className="text-3xl mb-4">BOT</div>
+            <div className="text-3xl mb-4 text-glow-ai shine-effect hover-scale float">AI</div>
             <div className={`text-7xl mb-4 transition-all duration-700 ${phase === 'reveal' ? 'animate-spin-slow' : ''}`}>
               {phase === 'voting' ? (
                 revealBot ? choiceEmojis[botChoice || 'null'] : '❓'
@@ -762,7 +762,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
           <div className={`bg-gradient-to-br from-[#0a2b30]/80 to-[#0a1b20]/80 backdrop-blur-sm p-6 rounded-lg flex flex-col items-center justify-center transition-all duration-500 ${phase === 'result' ? 'transform hover:scale-105' : ''} ${winner === 'chat' ? 'border-2 border-[#00ff9d] shadow-[0_0_15px_rgba(0,255,150,0.5)]' : 'border border-[#1e4a44]'}`}>
             {phase === 'voting' ? (
               <div className="flex flex-col w-full">
-                <div className="text-3xl mb-4 text-center">CHAT</div>
+                <div className="text-3xl mb-4 text-center text-glow-chat shine-effect hover-scale float">CHAT</div>
                 <div className="space-y-3 w-full">
                   <div className="flex items-center">
                     <div className="w-10 text-center">✊</div>
@@ -801,13 +801,28 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
               </div>
             ) : (
               <>
-                <div className="text-3xl mb-4">
-                  CHAT
-                  <div className="text-sm mt-1 text-[#00ffbb]">MAJORITAIRE</div>
-                </div>
-                <div className={`text-7xl mb-4 transition-all duration-700 ${phase === 'reveal' ? 'animate-flip' : ''}`}>
-                  {noVotes ? '❓' : (chatChoice ? choiceEmojis[chatChoice] : '❓')}
-                </div>
+                <div className="text-3xl mb-4 text-glow-chat shine-effect hover-scale float">CHAT</div>
+                {noVotes ? (
+                  <div className="flex flex-col items-center">
+                    <div className="text-5xl mb-4 opacity-50">🤔</div>
+                    <div className="text-lg text-gray-400">No votes</div>
+                    {phase === 'result' && (
+                      <div className="mt-2 text-sm text-gray-500">Draw by default</div>
+                    )}
+                  </div>
+                ) : (
+                  <div className={`text-7xl mb-4 transition-all duration-700 ${phase === 'reveal' ? 'animate-flip' : ''}`}>
+                    {chatChoice ? choiceEmojis[chatChoice] : '❓'}
+                  </div>
+                )}
+                
+                {phase === 'result' && !noVotes && (
+                  <div className="text-xl font-bold">
+                    {winner === 'chat' && '🏆 WINS!'}
+                    {winner === 'bot' && '😢 LOSES!'}
+                    {winner === 'tie' && '⚖️ DRAW!'}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -823,16 +838,22 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
         
         {/* Result message */}
         {phase === 'result' && (
-          <div className="mt-6 bg-[#0a2b30]/70 backdrop-blur-md border border-[#00bb99] rounded-lg p-3 shadow-[0_0_10px_rgba(0,200,150,0.3)] text-center animate-slide-up">
-            <div className="text-xl font-bold text-[#00ffbb]">
-              {winner === 'chat' ? (
-                <span className="animate-flicker">🏆 CHAT WINS THIS ROUND!</span>
-              ) : winner === 'bot' ? (
-                <span className="animate-flicker">BOT WINS THIS ROUND!</span>
-              ) : (
-                <span className="animate-flicker">DRAW!</span>
-              )}
-            </div>
+          <div className="mt-4 text-center">
+            {noVotes ? (
+              <div className="text-xl font-bold text-yellow-400">
+                Draw - No votes from chat
+              </div>
+            ) : winner === 'bot' ? (
+              <div className="text-xl font-bold text-red-400">
+                {cancelNextLoss ? '🛡️ Loss cancelled thanks to protection!' : 'AI wins this round!'}
+              </div>
+            ) : winner === 'chat' ? (
+              <div className="text-xl font-bold text-green-400">
+                Chat wins this round! {doublePoints && '⭐ Double points!'}
+              </div>
+            ) : (
+              <div className="text-xl font-bold text-yellow-400">Draw!</div>
+            )}
           </div>
         )}
       </div>

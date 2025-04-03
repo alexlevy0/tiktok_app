@@ -15,9 +15,9 @@ const RPSScoreBoard: React.FC<RPSScoreBoardProps> = ({ scores, streak }) => {
   return (
     <div className="flex justify-center items-center">
       <div className="grid grid-cols-3 w-full text-center">
-        {/* Score du bot */}
+        {/* Score de l'AI */}
         <div className="bg-[#0a1b40] p-3 rounded-l-lg border-l border-y border-[#1e3a6a] shadow-[0_0_10px_rgba(0,150,255,0.3)]">
-          <h3 className="text-xs uppercase font-bold text-[#36e8e8]">Bot</h3>
+          <h3 className="text-xs uppercase font-bold text-[#36e8e8]">AI</h3>
           <p className="text-2xl font-bold">{scores.bot}</p>
         </div>
         
