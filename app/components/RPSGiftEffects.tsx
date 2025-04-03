@@ -149,7 +149,7 @@ const RPSGiftEffects: React.FC<RPSGiftEffectsProps> = ({
       case 'double_points':
         return (
           <div className="text-yellow-300 font-bold text-center">
-            <div className="text-2xl mb-2">⭐⭐ POINTS DOUBLÉS ⭐⭐</div>
+            <div className="text-2xl mb-2">⭐⭐ DOUBLE POINTS ⭐⭐</div>
           </div>
         );
       case 'reveal_bot':
@@ -167,13 +167,13 @@ const RPSGiftEffects: React.FC<RPSGiftEffectsProps> = ({
       case 'slow_timer':
         return (
           <div className="text-purple-300 font-bold text-center">
-            <div className="text-2xl mb-2">⏱️ RALENTI ⏱️</div>
+            <div className="text-2xl mb-2">⏱️ SLOW TIME ⏱️</div>
           </div>
         );
       default:
         return (
           <div className="text-pink-300 font-bold text-center">
-            <div className="text-2xl mb-2">🎁 MERCI POUR LE CADEAU! 🎁</div>
+            <div className="text-2xl mb-2">🎁 THANK YOU FOR THE GIFT! 🎁</div>
           </div>
         );
     }

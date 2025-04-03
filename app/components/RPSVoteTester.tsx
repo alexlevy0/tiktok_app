@@ -14,14 +14,14 @@ const RPSVoteTester: React.FC<RPSVoteTesterProps> = ({
 }) => {
   const [testMessage, setTestMessage] = useState<string>('');
   
-  // Préréglages de messages pour faciliter les tests
+  // Preset messages for easy testing
   const presetMessages = [
-    { label: 'Pierre', emoji: '✊' },
-    { label: 'Papier', emoji: '✋' },
-    { label: 'Ciseaux', emoji: '✌️' },
-    { label: 'Poing', emoji: '👊' },
-    { label: 'Pouce', emoji: '👍' },
-    { label: 'Main', emoji: '🖐' }
+    { label: 'Rock', emoji: '✊' },
+    { label: 'Paper', emoji: '✋' },
+    { label: 'Scissors', emoji: '✌️' },
+    { label: 'Fist', emoji: '👊' },
+    { label: 'Thumbs up', emoji: '👍' },
+    { label: 'Hand', emoji: '🖐' }
   ];
   
   const handleSubmit = (e: React.FormEvent) => {
@@ -35,13 +35,13 @@ const RPSVoteTester: React.FC<RPSVoteTesterProps> = ({
     const msg = testMessage.toLowerCase();
     
     if (testMessage.includes('✊') || testMessage.includes('👊') || testMessage.includes('👍') || 
-        msg.includes('pierre') || msg.includes('rock') || msg === '1' || msg === 'p') {
+        msg.includes('rock') || msg.includes('pierre') || msg === '1' || msg === 'p') {
       vote = 'rock';
     } else if (testMessage.includes('✋') || testMessage.includes('🖐') || testMessage.includes('👋') || 
-              msg.includes('papier') || msg.includes('paper') || msg === '2') {
+              msg.includes('paper') || msg.includes('papier') || msg === '2') {
       vote = 'paper';
     } else if (testMessage.includes('✌️') || testMessage.includes('✌') || testMessage.includes('✂️') || 
-              msg.includes('ciseaux') || msg.includes('scissors') || msg === '3') {
+              msg.includes('scissors') || msg.includes('ciseaux') || msg === '3') {
       vote = 'scissors';
     }
     
@@ -80,13 +80,13 @@ const RPSVoteTester: React.FC<RPSVoteTesterProps> = ({
   return (
     <div className="bg-[#0a1030] p-2 rounded-lg mb-2 border border-[#2a2a4a]">
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-sm font-semibold text-[#36e8e8]">Testeur de vote</h3>
+        <h3 className="text-sm font-semibold text-[#36e8e8]">Vote Tester</h3>
         <div className={`text-xs px-2 py-0.5 rounded ${
           phase === 'voting' 
             ? 'bg-[#00aa66] text-black' 
             : 'bg-[#333344]'
         }`}>
-          {phase === 'voting' ? 'Votes ouverts' : 'Votes fermés'}
+          {phase === 'voting' ? 'Voting open' : 'Voting closed'}
         </div>
       </div>
       
@@ -108,7 +108,7 @@ const RPSVoteTester: React.FC<RPSVoteTesterProps> = ({
           type="text"
           value={testMessage}
           onChange={(e) => setTestMessage(e.target.value)}
-          placeholder="Tapez votre message avec emoji..."
+          placeholder="Type your message with emoji..."
           className="flex-1 bg-[#0a1020] text-white text-sm rounded p-1 border border-[#1e3a6a] focus:border-[#36e8e8] focus:outline-none"
           disabled={phase !== 'voting'}
         />
@@ -117,7 +117,7 @@ const RPSVoteTester: React.FC<RPSVoteTesterProps> = ({
           className="bg-[#0a2b30] hover:bg-[#0a3b40] text-[#00ffbb] text-xs rounded px-3 border border-[#1e5a6a]"
           disabled={phase !== 'voting'}
         >
-          Tester
+          Test
         </button>
       </form>
     </div>

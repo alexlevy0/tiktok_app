@@ -22,21 +22,21 @@ const RPSControlPanel: React.FC<RPSControlPanelProps> = ({
     switch (phase) {
       case 'voting':
         return {
-          title: 'Votez maintenant!',
-          message: 'Tapez ✊, ✋, ou ✌️ dans le chat pour voter',
-          details: 'Vous pouvez aussi taper "pierre", "papier", ou "ciseaux"'
+          title: 'Vote Now!',
+          message: 'Type ✊, ✋, or ✌️ in chat to vote',
+          details: 'You can also type "rock", "paper", or "scissors"'
         };
       case 'reveal':
         return {
-          title: 'Révélation!',
-          message: 'Découvrez le choix du bot et du chat...',
+          title: 'Reveal!',
+          message: 'Discover the bot and chat choices...',
           details: ''
         };
       case 'result':
         return {
-          title: 'Résultat!',
-          message: 'Et le gagnant est...',
-          details: 'Préparez-vous pour le prochain tour!'
+          title: 'Result!',
+          message: 'And the winner is...',
+          details: 'Get ready for next round!'
         };
       default:
         return {

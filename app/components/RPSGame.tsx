@@ -30,8 +30,8 @@ interface RPSGameProps {
 const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnectForm }) => {
   // États du jeu
   const [phase, setPhase] = useState<GamePhase>('voting');
-  const [timeLeft, setTimeLeft] = useState<number>(7); // Durée du vote en secondes
-  const [votingDuration, setVotingDuration] = useState<number>(7); // Durée standard
+  const [timeLeft, setTimeLeft] = useState<number>(30); // Durée du vote en secondes
+  const [votingDuration, setVotingDuration] = useState<number>(30); // Durée standard
   const [botChoice, setBotChoice] = useState<GameChoice>(null);
   const [chatChoice, setChatChoice] = useState<GameChoice>(null);
   const [scores, setScores] = useState({ bot: 0, chat: 0 });
@@ -646,7 +646,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
       <div className={`p-2 text-center transform transition-all duration-700 ${phaseChanged ? 'scale-110' : ''}`}>
         {phase === 'voting' && (
           <div className="bg-gradient-to-r from-[#0066aa] to-[#00aabb] p-2 rounded-lg animate-pulse shadow-lg flex items-center justify-center">
-            <span className="text-xl font-bold text-white">VOTES OUVERTS</span>
+            <span className="text-xl font-bold text-white">VOTING OPEN</span>
             <div className="ml-4 bg-[#0a1b30] px-3 py-1 rounded-full text-center min-w-[40px] shadow-inner">
               <span className="text-xl font-bold text-[#00ffbb] animate-pulse">{timeLeft}</span>
             </div>
@@ -655,13 +655,13 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
         
         {phase === 'reveal' && (
           <div className="bg-gradient-to-r from-[#aa6600] to-[#bb9900] p-2 rounded-lg animate-reveal shadow-lg">
-            <span className="text-xl font-bold text-white">RÉVÉLATION</span>
+            <span className="text-xl font-bold text-white">REVEAL</span>
           </div>
         )}
         
         {phase === 'result' && (
           <div className="bg-gradient-to-r from-[#00aa66] to-[#00bb99] p-2 rounded-lg animate-slide-up shadow-lg">
-            <span className="text-xl font-bold text-white">RÉSULTAT</span>
+            <span className="text-xl font-bold text-white">RESULT</span>
           </div>
         )}
       </div>
@@ -775,11 +775,11 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
           <div className="mt-6 bg-[#0a2b30]/70 backdrop-blur-md border border-[#00bb99] rounded-lg p-3 shadow-[0_0_10px_rgba(0,200,150,0.3)] text-center animate-slide-up">
             <div className="text-xl font-bold text-[#00ffbb]">
               {winner === 'chat' ? (
-                <span className="animate-flicker">🏆 LE CHAT GAGNE CETTE MANCHE !</span>
+                <span className="animate-flicker">🏆 CHAT WINS THIS ROUND!</span>
               ) : winner === 'bot' ? (
-                <span className="animate-flicker">LE BOT GAGNE CETTE MANCHE !</span>
+                <span className="animate-flicker">BOT WINS THIS ROUND!</span>
               ) : (
-                <span className="animate-flicker">MATCH NUL !</span>
+                <span className="animate-flicker">DRAW!</span>
               )}
             </div>
           </div>
@@ -813,7 +813,7 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
       {/* Voting instructions - conditionnel selon showHeader */}
       {showHeader && (
         <div className="p-3 bg-[#0a0a25]/70 backdrop-blur-sm text-center text-gray-300">
-          <p className="text-lg">Votez avec ✊ ✋ ✌️ dans le chat !</p>
+          <p className="text-lg">Vote with ✊ ✋ ✌️ in chat!</p>
         </div>
       )}
       
@@ -824,19 +824,19 @@ const RPSGame: React.FC<RPSGameProps> = ({ username, isConnected, onToggleConnec
             className="bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-xs transition-all duration-200 hover:scale-105"
             onClick={toggleVoteTester}
           >
-            {showVoteTester ? "Masquer votes" : "Tester votes"}
+            {showVoteTester ? "Hide votes" : "Test votes"}
           </button>
           <button 
             className="bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-xs transition-all duration-200 hover:scale-105"
             onClick={toggleGiftTester}
           >
-            {showGiftTester ? "Masquer cadeaux" : "Tester cadeaux"}
+            {showGiftTester ? "Hide gifts" : "Test gifts"}
           </button>
           <button 
             className="bg-gray-800 hover:bg-gray-700 px-2 py-1 rounded text-xs transition-all duration-200 hover:scale-105"
             onClick={toggleHeader}
           >
-            {showHeader ? "Mode compact" : "Mode complet"}
+            {showHeader ? "Compact mode" : "Full mode"}
           </button>
           {onToggleConnectForm && (
             <button 

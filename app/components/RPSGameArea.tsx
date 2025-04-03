@@ -105,7 +105,7 @@ const RPSGameArea: React.FC<RPSGameAreaProps> = ({
           {doublePoints && (
             <div className="text-yellow-300 font-bold flex items-center">
               <span className="mr-1">⭐</span>
-              <span>Points doublés</span>
+              <span>Double points</span>
             </div>
           )}
           {cancelNextLoss && (
@@ -145,9 +145,9 @@ const RPSGameArea: React.FC<RPSGameAreaProps> = ({
           
           {phase === 'result' && (
             <div className="text-xl font-bold">
-              {winner === 'bot' && '🏆 GAGNE!'}
-              {winner === 'chat' && '😢 PERD!'}
-              {winner === 'tie' && '⚖️ ÉGALITÉ!'}
+              {winner === 'bot' && '🏆 WINS!'}
+              {winner === 'chat' && '😢 LOSES!'}
+              {winner === 'tie' && '⚖️ DRAW!'}
             </div>
           )}
         </div>
@@ -205,7 +205,7 @@ const RPSGameArea: React.FC<RPSGameAreaProps> = ({
               
               <div className="text-center text-sm mt-2">
                 {totalVotes === 0 ? (
-                  <span>Aucun vote</span>
+                  <span>No votes</span>
                 ) : (
                   <span>Total: {totalVotes} votes</span>
                 )}
@@ -216,9 +216,9 @@ const RPSGameArea: React.FC<RPSGameAreaProps> = ({
               {noVotes ? (
                 <div className="flex flex-col items-center">
                   <div className="text-5xl mb-4 opacity-50">🤔</div>
-                  <div className="text-lg text-gray-400">Aucun vote</div>
+                  <div className="text-lg text-gray-400">No votes</div>
                   {phase === 'result' && (
-                    <div className="mt-2 text-sm text-gray-500">Match nul par défaut</div>
+                    <div className="mt-2 text-sm text-gray-500">Draw by default</div>
                   )}
                 </div>
               ) : (
@@ -229,9 +229,9 @@ const RPSGameArea: React.FC<RPSGameAreaProps> = ({
               
               {phase === 'result' && !noVotes && (
                 <div className="text-xl font-bold">
-                  {winner === 'chat' && '🏆 GAGNE!'}
-                  {winner === 'bot' && '😢 PERD!'}
-                  {winner === 'tie' && '⚖️ ÉGALITÉ!'}
+                  {winner === 'chat' && '🏆 WINS!'}
+                  {winner === 'bot' && '😢 LOSES!'}
+                  {winner === 'tie' && '⚖️ DRAW!'}
                 </div>
               )}
             </>
@@ -244,18 +244,18 @@ const RPSGameArea: React.FC<RPSGameAreaProps> = ({
         <div className="mt-4 text-center">
           {noVotes ? (
             <div className="text-xl font-bold text-yellow-400">
-              Manche nulle - Aucun vote du chat
+              Draw - No votes from chat
             </div>
           ) : winner === 'bot' ? (
             <div className="text-xl font-bold text-red-400">
-              {cancelNextLoss ? '🛡️ Défaite annulée grâce à la protection!' : 'Le Bot gagne ce tour!'}
+              {cancelNextLoss ? '🛡️ Loss cancelled thanks to protection!' : 'Bot wins this round!'}
             </div>
           ) : winner === 'chat' ? (
             <div className="text-xl font-bold text-green-400">
-              Le Chat gagne ce tour! {doublePoints && '⭐ Points doublés!'}
+              Chat wins this round! {doublePoints && '⭐ Double points!'}
             </div>
           ) : (
-            <div className="text-xl font-bold text-yellow-400">Match nul!</div>
+            <div className="text-xl font-bold text-yellow-400">Draw!</div>
           )}
         </div>
       )}
